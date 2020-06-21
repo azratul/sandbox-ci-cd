@@ -34,5 +34,6 @@ Lo único que necesitas tener instalado en tu equipo es Vagrant, que puedes desc
 ## Optional
 
 1. Configurar el clúster de Microk8s.
-
-`http://gitlab.magi-system.com/admin/clusters`
+- Ir a: [Admin Area -> Settings -> Network](http://gitlab.magi-system.com/admin/application_settings/network)
+- En "Outbound requests", clickear "Allow requests to the local network from web hooks and services" y "Save changes"
+- Ir a: [Admin Area -> Kubernetes](http://gitlab.magi-system.com/admin/clusters)

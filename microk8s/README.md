@@ -41,4 +41,4 @@ Lo único que necesitas tener instalado en tu equipo es Vagrant, que puedes desc
 
 2. Si quieres integrar tu microk8s con Gitlab para el CI/CD, hay un script en microk8s/gitlab.sh que se encarga de obtener todo lo que necesitas para poder configurarlo fácilmente. Desde dentro de la VM ejecutar:
 
-	`./vagrant/gitlab.sh`
+	`/vagrant/gitlab.sh`
