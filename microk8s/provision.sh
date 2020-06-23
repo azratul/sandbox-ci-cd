@@ -47,8 +47,13 @@ microk8s.kubectl -n openfaas create secret generic basic-auth --from-literal=bas
 git clone https://github.com/openfaas/faas-netes
 microk8s.kubectl apply -f ./faas-netes/yaml && rm -rf faas-netes
 curl -sSL https://cli.openfaas.com | sh
-faas-cli completion --shell bash > /etc/bash_completion.d/faas-cli
 
+# INSTALLATION BASH COMPLETION FOR FAAS-CLI & KUBECTL
+echo "***********************************************"
+echo "*          INSTALLING BASH COMPLETION         *"
+echo "***********************************************"
+faas-cli completion --shell bash > /etc/bash_completion.d/faas-cli
+microk8s.kubectl completion bash > /etc/bash_completion.d/kubectl
 # MODIFYING PRINCIPAL USER'S PERMISSIONS
 groupadd docker
 usermod -aG docker $FINAL_USER
@@ -70,6 +75,7 @@ sed -i 's/localhost/magi-system.com/g' /etc/bind/reverse.magi-system.com
 IP=$(ip a | grep ens | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/" | sed 's/\///g')
 printf "kubernetes\tIN\tA\t${IP}" >> /etc/bind/forward.magi-system.com
 printf "kubernetes\tIN\tA\t${IP}" >> /etc/bind/reverse.magi-system.com
+
 echo "*******************************************************************"
 echo "*                           DONE, BUT...                          *"
 echo "*******************************************************************"
