@@ -63,18 +63,20 @@ echo "***********************************************"
 sed 's/OPTIONS.*bind/& -4/g' /etc/default/bind9
 cp /etc/bind/db.local /etc/bind/forward.magi-system.com
 cp /etc/bind/db.127 /etc/bind/reverse.magi-system.com
+cp /vagrant/named.conf.local /etc/bind/named.conf.local
+cp /vagrant/named.conf.options /etc/bind/named.conf.options
 sed -i 's/localhost/kubernetes.magi-system.com/g' /etc/bind/forward.magi-system.com
 sed -i 's/localhost/magi-system.com/g' /etc/bind/reverse.magi-system.com
 IP=$(ip a | grep ens | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/" | sed 's/\///g')
 printf "kubernetes\tIN\tA\t${IP}" >> /etc/bind/forward.magi-system.com
 printf "kubernetes\tIN\tA\t${IP}" >> /etc/bind/reverse.magi-system.com
-echo "***********************************************"
-echo "*                DONE, BUT...                 *"
-echo "***********************************************"
-echo "   IF YOU WANT A FULLY FUNCTIONAL DNS SERVER, "
-echo " YOU'LL NEED TO ADD SOME SETTINGS INTO THIS FILES "
-echo "     - /etc/bind/forward.magi-system.com "
-echo "  SOMETHING LIKE THIS: gitlab IN A GITLAB_IP"
-echo "     - /etc/bind/reverse.magi-system.com "
-echo "  SOMETHING LIKE THIS: <255>.<255> IN PTR kubernetes.magi-system.com"
-echo "  AND LIKE THIS: <255>.<255> IN PTR gitlab.magi-system.com"
+echo "*******************************************************************"
+echo "*                           DONE, BUT...                          *"
+echo "*******************************************************************"
+echo " IF YOU WANT A FULLY FUNCTIONAL DNS SERVER, YOU'LL NEED TO ADD"
+echo " SOME SETTINGS INTO THIS FILES"
+echo "  - /etc/bind/forward.magi-system.com"
+echo " SOMETHING LIKE THIS: gitlab IN A <GITLAB_IP>"
+echo "  - /etc/bind/reverse.magi-system.com"
+echo " SOMETHING LIKE THIS: <255>.<255> IN PTR kubernetes.magi-system.com"
+echo " AND LIKE THIS: <255>.<255> IN PTR gitlab.magi-system.com"
