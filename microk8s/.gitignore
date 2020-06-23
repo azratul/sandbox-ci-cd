@@ -3,3 +3,5 @@
 .tokens
 .gitlab-admin-service-account.yaml
 .gitlab.conf
+faas-netes
+faas-cli
