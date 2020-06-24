@@ -30,7 +30,7 @@ Lo único que necesitas tener instalado en tu equipo es Vagrant, que puedes desc
 
 5. Esperar aproximadamente 90s para que todos los servicios del k8s arranquen y ejecutar el siguiente comando
 
-    `microk8s.kubectl get all --all-namespaces`
+    `kubectl get all --all-namespaces`
 
 6. That's all! Now u'r ready to go
 
@@ -41,4 +41,10 @@ Lo único que necesitas tener instalado en tu equipo es Vagrant, que puedes desc
 
 2. Si quieres integrar tu microk8s con Gitlab para el CI/CD, hay un script en microk8s/gitlab.sh que se encarga de obtener todo lo que necesitas para poder configurarlo fácilmente. Desde dentro de la VM ejecutar:
 
-	`/vagrant/gitlab.sh`
+	`/vagrant/gitlab.sh && cat .gitlab.conf`
+
+3. Para agregar tu DNS server a tu resolv, debes ejecutar el siguiente comando como root:
+
+	`printf "search TU.DNS\nnameserver IP.DE.TU.DNS\n" > /etc/resolv.conf`
+
+4. Si algo no va bien con el DNS Server, consulta documentación [aquí](https://www.linuxtechi.com/install-configure-bind-9-dns-server-ubuntu-debian/)

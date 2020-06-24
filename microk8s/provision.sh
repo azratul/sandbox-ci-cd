@@ -1,5 +1,6 @@
 #!/bin/sh
 
+export DNS=magi-system.com
 export DEBIAN_FRONTEND=noninteractive
 export PATH=$PATH:/snap/bin:/usr/shell-scripts
 
@@ -61,28 +62,45 @@ usermod -aG microk8s $FINAL_USER
 snap disable docker
 snap enable docker
 
+# CHANGING SETTINGS IN CORE DNS & API SERVER
+echo "***********************************************"
+echo "*       CHANGING  CORE DNS & API SERVER       *"
+echo "***********************************************"
+echo '--allow-privileged=true' >> /var/snap/microk8s/current/args/kube-apiserver
+microk8s.kubectl get -n kube-system configmaps/coredns -o yaml | \
+sed '0,/forward ..*$/s//forward . \/etc\/resolv.conf /' | \
+microk8s.kubectl replace -n kube-system -f -
+
 # BASICS BIND9 SETTINGS. YOU'LL HAVE TO CHANGED IT ACCORDING TO YOUR NEEDS
 echo "***********************************************"
 echo "*            INSTALLING DNS SERVER            *"
 echo "***********************************************"
 sed 's/OPTIONS.*bind/& -4/g' /etc/default/bind9
-cp /etc/bind/db.local /etc/bind/forward.magi-system.com
-cp /etc/bind/db.127 /etc/bind/reverse.magi-system.com
+cp /etc/bind/db.local /etc/bind/forward.${DNS}
+cp /etc/bind/db.127 /etc/bind/reverse.${DNS}
 cp /vagrant/named.conf.local /etc/bind/named.conf.local
 cp /vagrant/named.conf.options /etc/bind/named.conf.options
-sed -i 's/localhost/kubernetes.magi-system.com/g' /etc/bind/forward.magi-system.com
-sed -i 's/localhost/magi-system.com/g' /etc/bind/reverse.magi-system.com
+sed -i "s/localhost/kubernetes.${DNS}/g" /etc/bind/forward.${DNS}
+sed -i "s/localhost/${DNS}/g" /etc/bind/reverse.${DNS}
+sed -i "s/\tIN\tNS\t/&kubernetes./g" /etc/bind/reverse.${DNS}
 IP=$(ip a | grep ens | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/" | sed 's/\///g')
-printf "kubernetes\tIN\tA\t${IP}" >> /etc/bind/forward.magi-system.com
-printf "kubernetes\tIN\tA\t${IP}" >> /etc/bind/reverse.magi-system.com
+OCTET34=$(echo ${IP} | sed 's/[0-9]\+\.[0-9]\+\.//')
+printf "kubernetes\tIN\tA\t${IP}" >> /etc/bind/forward.${DNS}
+printf "kubernetes\tIN\tA\t${IP}\n" >> /etc/bind/reverse.${DNS}
+printf "${OCTET34}\tIN\tPTR\tkubernetes.${DNS}.\n" >> /etc/bind/reverse.${DNS}
+sed -i "s/localhost:32000/kubernetes.${DNS}:32000/g" /var/snap/microk8s/current/args/containerd.toml
+#sed -i "s/localhost:32000/kubernetes.${DNS}:32000/g" /var/snap/microk8s/current/args/containerd-template.toml
 
 echo "*******************************************************************"
 echo "*                           DONE, BUT...                          *"
 echo "*******************************************************************"
-echo " IF YOU WANT A FULLY FUNCTIONAL DNS SERVER, YOU'LL NEED TO ADD"
-echo " SOME SETTINGS INTO THIS FILES"
-echo "  - /etc/bind/forward.magi-system.com"
-echo " SOMETHING LIKE THIS: gitlab IN A <GITLAB_IP>"
-echo "  - /etc/bind/reverse.magi-system.com"
-echo " SOMETHING LIKE THIS: <255>.<255> IN PTR kubernetes.magi-system.com"
-echo " AND LIKE THIS: <255>.<255> IN PTR gitlab.magi-system.com"
+echo "*                                                                 *"
+echo "* IF YOU WANT TO ADD ANOTHER DNS, JUST DO SOMETHING LIKE THIS:    *"
+echo "* SOME SETTINGS INTO THIS FILES                                   *"
+echo "*  - /etc/bind/forward.<YOUR>.<DNS>                               *"
+echo "* SOMETHING LIKE THIS: gitlab IN A <YOUR.GIT.LAB.IP>              *"
+echo "*  - /etc/bind/reverse.<YOUR>.<DNS>                               *"
+echo "* SOMETHING LIKE THIS: <255>.<255> IN   PTR  gitlab.<YOUR>.<DNS>. *"
+echo "* AND RESTART THE SERVICE: sudo systemctl restart bind9           *"
+echo "*                                                                 *"
+echo "*******************************************************************"
