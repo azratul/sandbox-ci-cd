@@ -48,3 +48,12 @@ Lo único que necesitas tener instalado en tu equipo es Vagrant, que puedes desc
 	`printf "search TU.DNS\nnameserver IP.DE.TU.DNS\n" > /etc/resolv.conf`
 
 4. Si algo no va bien con el DNS Server, consulta documentación [aquí](https://www.linuxtechi.com/install-configure-bind-9-dns-server-ubuntu-debian/)
+
+	Para agregar un nuevo DNS(en este caso será de Gitlab), modifica los siguientes archivos:
+
+	- /etc/bind/forward.<YOUR>.<DNS> agrega gitlab IN A <YOUR.GIT.LAB.IP>
+	- /etc/bind/reverse.<YOUR>.<DNS> <255>.<255> IN   PTR  gitlab.<YOUR>.<DNS>.
+
+	Ejemplo:
+	/etc/bind/forward.domain.com: gitlab IN A 192.168.121.75
+	/etc/bind/reverse.domain.com: 121.75 IN PTR gitlab.domain.com

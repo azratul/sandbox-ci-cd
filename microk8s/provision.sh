@@ -66,7 +66,7 @@ snap enable docker
 echo "***********************************************"
 echo "*       CHANGING  CORE DNS & API SERVER       *"
 echo "***********************************************"
-echo '--allow-privileged=true' >> /var/snap/microk8s/current/args/kube-apiserver
+sed -i 's/--insecure-port=0/&\n--allow-privileged=true/g'  /var/snap/microk8s/current/args/kube-apiserver
 microk8s.kubectl get -n kube-system configmaps/coredns -o yaml | \
 sed '0,/forward ..*$/s//forward . \/etc\/resolv.conf /' | \
 microk8s.kubectl replace -n kube-system -f -
@@ -89,7 +89,7 @@ printf "kubernetes\tIN\tA\t${IP}" >> /etc/bind/forward.${DNS}
 printf "kubernetes\tIN\tA\t${IP}\n" >> /etc/bind/reverse.${DNS}
 printf "${OCTET34}\tIN\tPTR\tkubernetes.${DNS}.\n" >> /etc/bind/reverse.${DNS}
 sed -i "s/localhost:32000/kubernetes.${DNS}:32000/g" /var/snap/microk8s/current/args/containerd.toml
-#sed -i "s/localhost:32000/kubernetes.${DNS}:32000/g" /var/snap/microk8s/current/args/containerd-template.toml
+sed -i "s/localhost:32000/kubernetes.${DNS}:32000/g" /var/snap/microk8s/current/args/containerd-template.toml
 
 echo "*******************************************************************"
 echo "*                           DONE, BUT...                          *"
