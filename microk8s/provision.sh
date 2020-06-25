@@ -1,7 +1,7 @@
 #!/bin/sh
 
 export GITLAB=121.11
-export IP=$(ip a | grep ens5 | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/" | sed 's/\///g')
+export IP=$(ip a | grep ens6 | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/" | sed 's/\///g')
 export DNS=magi-system.com
 export DEBIAN_FRONTEND=noninteractive
 export PATH=$PATH:/snap/bin:/usr/shell-scripts

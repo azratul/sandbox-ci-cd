@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ACTUAL IP
-IP=$(ip a | grep ens | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/" | sed 's/\///g')
+IP=$(ip a | grep ens6 | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/" | sed 's/\///g')
 
 # API URL
 API_URL=$(microk8s.kubectl cluster-info | grep 'Kubernetes master' | awk '/http/ {print $NF}')
