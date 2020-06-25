@@ -69,6 +69,5 @@ Vagrant.configure("2") do |config|
     inline: <<-SHELL
       echo "alias ll='ls -lah --color=auto'" >> .bashrc
       echo "alias grep='grep --color=auto'" >> .bashrc
-      echo "alias kubectl='microk8s.kubectl'" >> .bashrc
     SHELL
 end

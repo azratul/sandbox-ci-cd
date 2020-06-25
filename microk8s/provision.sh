@@ -1,6 +1,7 @@
 #!/bin/sh
 
 export GITLAB=121.11
+export IP=$(ip a | grep ens5 | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/" | sed 's/\///g')
 export DNS=magi-system.com
 export DEBIAN_FRONTEND=noninteractive
 export PATH=$PATH:/snap/bin:/usr/shell-scripts
@@ -84,7 +85,6 @@ cp /vagrant/named.conf.options /etc/bind/named.conf.options
 sed -i "s/localhost/kubernetes.${DNS}/g" /etc/bind/forward.${DNS}
 sed -i "s/localhost/${DNS}/g" /etc/bind/reverse.${DNS}
 sed -i "s/\tIN\tNS\t/&kubernetes./g" /etc/bind/reverse.${DNS}
-IP=$(ip a | grep ens | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/" | sed 's/\///g')
 OCTET12=$(echo ${IP} | sed 's/\.[0-9]\+\.[0-9]\+$//')
 OCTET34=$(echo ${IP} | sed 's/[0-9]\+\.[0-9]\+\.//')
 printf "kubernetes\tIN\tA\t${IP}\n" >> /etc/bind/forward.${DNS}
