@@ -1,5 +1,6 @@
 #!/bin/sh
 
+export GITLAB=121.11
 export DNS=magi-system.com
 export DEBIAN_FRONTEND=noninteractive
 export PATH=$PATH:/snap/bin:/usr/shell-scripts
@@ -8,7 +9,7 @@ export PATH=$PATH:/snap/bin:/usr/shell-scripts
 echo "***********************************************"
 echo "*          INSTALLING CORE PACKAGES           *"
 echo "***********************************************"
-apt -y install snapd git ufw curl apt-transport-https vim openconnect bind9 bind9utils bind9-doc
+apt -y install snapd git ufw curl apt-transport-https vim openconnect bind9 bind9utils bind9-doc resolvconf
 snap install core
 snap install microk8s --classic
 snap install docker
@@ -84,12 +85,16 @@ sed -i "s/localhost/kubernetes.${DNS}/g" /etc/bind/forward.${DNS}
 sed -i "s/localhost/${DNS}/g" /etc/bind/reverse.${DNS}
 sed -i "s/\tIN\tNS\t/&kubernetes./g" /etc/bind/reverse.${DNS}
 IP=$(ip a | grep ens | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/" | sed 's/\///g')
+OCTET12=$(echo ${IP} | sed 's/\.[0-9]\+\.[0-9]\+$//')
 OCTET34=$(echo ${IP} | sed 's/[0-9]\+\.[0-9]\+\.//')
-printf "kubernetes\tIN\tA\t${IP}" >> /etc/bind/forward.${DNS}
+printf "kubernetes\tIN\tA\t${IP}\n" >> /etc/bind/forward.${DNS}
+printf "gitlab\tIN\tA\t${OCTET12}.${GITLAB}\n" >> /etc/bind/forward.${DNS}
 printf "kubernetes\tIN\tA\t${IP}\n" >> /etc/bind/reverse.${DNS}
 printf "${OCTET34}\tIN\tPTR\tkubernetes.${DNS}.\n" >> /etc/bind/reverse.${DNS}
+printf "${GITLAB}\tIN\tPTR\tgitlab.${DNS}.\n" >> /etc/bind/reverse.${DNS}
 sed -i "s/localhost:32000/kubernetes.${DNS}:32000/g" /var/snap/microk8s/current/args/containerd.toml
 sed -i "s/localhost:32000/kubernetes.${DNS}:32000/g" /var/snap/microk8s/current/args/containerd-template.toml
+printf "search ${DNS}\nnameserver ${IP}\n" >> /etc/resolvconf/resolv.conf.d/head
 
 echo "*******************************************************************"
 echo "*                           DONE, BUT...                          *"
