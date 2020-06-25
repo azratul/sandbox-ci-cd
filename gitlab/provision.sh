@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export KUBERNETES=121.10
+export KUBERNETES=192.168.121.10
 export DNS=magi-system.com
 export DEBIAN_FRONTEND=noninteractive
 
