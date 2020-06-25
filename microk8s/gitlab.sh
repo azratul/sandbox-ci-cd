@@ -33,5 +33,5 @@ subjects:
 microk8s.kubectl apply -f .gitlab-admin-service-account.yaml
 TOKEN=$(microk8s.kubectl -n kube-system describe secret $(microk8s.kubectl -n kube-system get secret | grep gitlab-admin | awk '{print $1}') | grep 'token:' | cut -d ' ' -f 7)
 
-printf "Api URL: ${API_URL}\nCA Cert: ${CA_CERT}\nToken: ${TOKEN}" > .gitlab.conf
+printf "Api URL:\n${API_URL}\n\nCA Cert:\n${CA_CERT}\n\nToken:\n${TOKEN}\n\n" > .gitlab.conf
 
