@@ -1,6 +1,7 @@
 #!/bin/sh
 
-export GITLAB=121.11
+export GITLAB1=121
+export GITLAB2=11
 export IP=$(ip a | grep ens6 | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/" | sed 's/\///g')
 export DNS=magi-system.com
 export DEBIAN_FRONTEND=noninteractive
@@ -85,13 +86,15 @@ cp /vagrant/named.conf.options /etc/bind/named.conf.options
 sed -i "s/localhost/kubernetes.${DNS}/g" /etc/bind/forward.${DNS}
 sed -i "s/localhost/${DNS}/g" /etc/bind/reverse.${DNS}
 sed -i "s/\tIN\tNS\t/&kubernetes./g" /etc/bind/reverse.${DNS}
-OCTET12=$(echo ${IP} | sed 's/\.[0-9]\+\.[0-9]\+$//')
-OCTET34=$(echo ${IP} | sed 's/[0-9]\+\.[0-9]\+\.//')
+OCTET1=$(echo ${IP%%.*})
+OCTET2=$(echo ${IP}|cut -d "." -f 2)
+OCTET3=$(echo ${IP}|cut -d "." -f 3)
+OCTET4=$(echo ${IP##*.})
 printf "kubernetes\tIN\tA\t${IP}\n" >> /etc/bind/forward.${DNS}
-printf "gitlab\tIN\tA\t${OCTET12}.${GITLAB}\n" >> /etc/bind/forward.${DNS}
+printf "gitlab\tIN\tA\t${OCTET1}.{OCTET2}.${GITLAB1}.${GITLAB2}\n" >> /etc/bind/forward.${DNS}
 printf "kubernetes\tIN\tA\t${IP}\n" >> /etc/bind/reverse.${DNS}
-printf "${OCTET34}\tIN\tPTR\tkubernetes.${DNS}.\n" >> /etc/bind/reverse.${DNS}
-printf "${GITLAB}\tIN\tPTR\tgitlab.${DNS}.\n" >> /etc/bind/reverse.${DNS}
+printf "${OCTET4}.${OCTET3}\tIN\tPTR\tkubernetes.${DNS}.\n" >> /etc/bind/reverse.${DNS}
+printf "${GITLAB2}.${GITLAB1}\tIN\tPTR\tgitlab.${DNS}.\n" >> /etc/bind/reverse.${DNS}
 sed -i "s/localhost:32000/kubernetes.${DNS}:32000/g" /var/snap/microk8s/current/args/containerd.toml
 sed -i "s/localhost:32000/kubernetes.${DNS}:32000/g" /var/snap/microk8s/current/args/containerd-template.toml
 printf "search ${DNS}\nnameserver ${IP}\n" >> /etc/resolvconf/resolv.conf.d/head
