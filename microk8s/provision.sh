@@ -1,9 +1,8 @@
 #!/bin/sh
 
-export GITLAB1=121
-export GITLAB2=11
-export IP=$(ip a | grep ens6 | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b/" | sed 's/\///g')
-export DNS=magi-system.com
+export GITLAB=121.11
+export DNS_IP=192.168.121.10
+export DNS=dns.magi-system.com
 export DEBIAN_FRONTEND=noninteractive
 export PATH=$PATH:/snap/bin:/usr/shell-scripts
 
@@ -11,14 +10,12 @@ export PATH=$PATH:/snap/bin:/usr/shell-scripts
 echo "***********************************************"
 echo "*          INSTALLING CORE PACKAGES           *"
 echo "***********************************************"
-apt -y install snapd git ufw curl apt-transport-https vim openconnect bind9 bind9utils bind9-doc resolvconf
+apt -y install snapd git ufw curl apt-transport-https vim openconnect resolvconf
 snap install core
 snap install microk8s --classic
-snap install docker
 ufw allow in on cni0
 ufw allow out on cni0
 ufw default allow routed
-ufw allow 53
 
 # ENABLING PRINCIPAL K8S MODULES
 echo "***********************************************"
@@ -59,11 +56,7 @@ echo "***********************************************"
 faas-cli completion --shell bash > /etc/bash_completion.d/faas-cli
 microk8s.kubectl completion bash > /etc/bash_completion.d/kubectl
 # MODIFYING PRINCIPAL USER'S PERMISSIONS
-groupadd docker
-usermod -aG docker $FINAL_USER
 usermod -aG microk8s $FINAL_USER
-snap disable docker
-snap enable docker
 
 # CHANGING SETTINGS IN CORE DNS & API SERVER
 echo "***********************************************"
@@ -78,39 +71,6 @@ microk8s.kubectl replace -n kube-system -f -
 echo "***********************************************"
 echo "*            INSTALLING DNS SERVER            *"
 echo "***********************************************"
-sed 's/OPTIONS.*bind/& -4/g' /etc/default/bind9
-cp /etc/bind/db.local /etc/bind/forward.${DNS}
-cp /etc/bind/db.127 /etc/bind/reverse.${DNS}
-cp /vagrant/named.conf.local /etc/bind/named.conf.local
-cp /vagrant/named.conf.options /etc/bind/named.conf.options
-sed -i "s/localhost/kubernetes.${DNS}/g" /etc/bind/forward.${DNS}
-sed -i 's/@\tIN\tA/; &/g' /etc/bind/forward.magi-system.com
-sed -i "s/localhost/${DNS}/g" /etc/bind/reverse.${DNS}
-sed -i "s/\tIN\tNS\t/&kubernetes./g" /etc/bind/reverse.${DNS}
-sed -i 's/1\.0\.0\tIN/; &/g' /etc/bind/reverse.magi-system.com
-OCTET1=$(echo ${IP%%.*})
-OCTET2=$(echo ${IP}|cut -d "." -f 2)
-OCTET3=$(echo ${IP}|cut -d "." -f 3)
-OCTET4=$(echo ${IP##*.})
-printf "kubernetes\tIN\tA\t${IP}\n" >> /etc/bind/forward.${DNS}
-printf "gitlab\tIN\tA\t${OCTET1}.${OCTET2}.${GITLAB1}.${GITLAB2}\n" >> /etc/bind/forward.${DNS}
-printf "kubernetes\tIN\tA\t${IP}\n" >> /etc/bind/reverse.${DNS}
-printf "${OCTET4}.${OCTET3}\tIN\tPTR\tkubernetes.${DNS}.\n" >> /etc/bind/reverse.${DNS}
-printf "${GITLAB2}.${GITLAB1}\tIN\tPTR\tgitlab.${DNS}.\n" >> /etc/bind/reverse.${DNS}
-sed -i "s/localhost:32000/kubernetes.${DNS}:32000/g" /var/snap/microk8s/current/args/containerd.toml
-sed -i "s/localhost:32000/kubernetes.${DNS}:32000/g" /var/snap/microk8s/current/args/containerd-template.toml
-printf "search ${DNS}\nnameserver ${IP}\n" >> /etc/resolvconf/resolv.conf.d/head
-
-echo "*******************************************************************"
-echo "*                           DONE, BUT...                          *"
-echo "*******************************************************************"
-echo "*                                                                 *"
-echo "* IF YOU WANT TO ADD ANOTHER DNS, JUST DO SOMETHING LIKE THIS:    *"
-echo "* SOME SETTINGS INTO THIS FILES                                   *"
-echo "*  - /etc/bind/forward.<YOUR>.<DNS>                               *"
-echo "* SOMETHING LIKE THIS: gitlab IN A <YOUR.GIT.LAB.IP>              *"
-echo "*  - /etc/bind/reverse.<YOUR>.<DNS>                               *"
-echo "* SOMETHING LIKE THIS: <255>.<255> IN   PTR  gitlab.<YOUR>.<DNS>. *"
-echo "* AND RESTART THE SERVICE: sudo systemctl restart bind9           *"
-echo "*                                                                 *"
-echo "*******************************************************************"
+sed -i "s/localhost:32000/${DNS}:32000/g" /var/snap/microk8s/current/args/containerd.toml
+sed -i "s/localhost:32000/${DNS}:32000/g" /var/snap/microk8s/current/args/containerd-template.toml
+printf "search ${DNS}\nnameserver ${DNS_IP}\n" >> /etc/resolvconf/resolv.conf.d/head
