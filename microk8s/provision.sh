@@ -2,7 +2,8 @@
 
 export GITLAB=121.11
 export DNS_IP=192.168.121.10
-export DNS=dns.magi-system.com
+export DOCKER=docker.magi-system.com
+export DNS=magi-system.com
 export DEBIAN_FRONTEND=noninteractive
 export PATH=$PATH:/snap/bin:/usr/shell-scripts
 export FINAL_USER=vagrant
@@ -70,6 +71,6 @@ microk8s.kubectl replace -n kube-system -f -
 echo "***********************************************"
 echo "*            INSTALLING DNS SERVER            *"
 echo "***********************************************"
-sed -i "s/localhost:32000/${DNS}:32000/g" /var/snap/microk8s/current/args/containerd.toml
-sed -i "s/localhost:32000/${DNS}:32000/g" /var/snap/microk8s/current/args/containerd-template.toml
+sed -i "s/localhost:32000/${DOCKER}:32000/g" /var/snap/microk8s/current/args/containerd.toml
+sed -i "s/localhost:32000/${DOCKER}:32000/g" /var/snap/microk8s/current/args/containerd-template.toml
 printf "search ${DNS}\nnameserver ${DNS_IP}\n" >> /etc/resolvconf/resolv.conf.d/head
