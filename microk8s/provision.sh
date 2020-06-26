@@ -69,7 +69,7 @@ snap enable docker
 echo "***********************************************"
 echo "*       CHANGING  CORE DNS & API SERVER       *"
 echo "***********************************************"
-sed -i 's/--insecure-port=0/&\n--allow-privileged=true/g'  /var/snap/microk8s/current/args/kube-apiserver
+sed -i 's/--insecure-port=0/&\n--allow-privileged=true/g' /var/snap/microk8s/current/args/kube-apiserver
 microk8s.kubectl get -n kube-system configmaps/coredns -o yaml | \
 sed '0,/forward ..*$/s//forward . \/etc\/resolv.conf /' | \
 microk8s.kubectl replace -n kube-system -f -
@@ -84,14 +84,16 @@ cp /etc/bind/db.127 /etc/bind/reverse.${DNS}
 cp /vagrant/named.conf.local /etc/bind/named.conf.local
 cp /vagrant/named.conf.options /etc/bind/named.conf.options
 sed -i "s/localhost/kubernetes.${DNS}/g" /etc/bind/forward.${DNS}
+sed -i 's/@\tIN\tA/; &/g' /etc/bind/forward.magi-system.com
 sed -i "s/localhost/${DNS}/g" /etc/bind/reverse.${DNS}
 sed -i "s/\tIN\tNS\t/&kubernetes./g" /etc/bind/reverse.${DNS}
+sed -i 's/1\.0\.0\tIN/; &/g' /etc/bind/reverse.magi-system.com
 OCTET1=$(echo ${IP%%.*})
 OCTET2=$(echo ${IP}|cut -d "." -f 2)
 OCTET3=$(echo ${IP}|cut -d "." -f 3)
 OCTET4=$(echo ${IP##*.})
 printf "kubernetes\tIN\tA\t${IP}\n" >> /etc/bind/forward.${DNS}
-printf "gitlab\tIN\tA\t${OCTET1}.{OCTET2}.${GITLAB1}.${GITLAB2}\n" >> /etc/bind/forward.${DNS}
+printf "gitlab\tIN\tA\t${OCTET1}.${OCTET2}.${GITLAB1}.${GITLAB2}\n" >> /etc/bind/forward.${DNS}
 printf "kubernetes\tIN\tA\t${IP}\n" >> /etc/bind/reverse.${DNS}
 printf "${OCTET4}.${OCTET3}\tIN\tPTR\tkubernetes.${DNS}.\n" >> /etc/bind/reverse.${DNS}
 printf "${GITLAB2}.${GITLAB1}\tIN\tPTR\tgitlab.${DNS}.\n" >> /etc/bind/reverse.${DNS}
