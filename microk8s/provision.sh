@@ -5,6 +5,7 @@ export DNS_IP=192.168.121.10
 export DNS=dns.magi-system.com
 export DEBIAN_FRONTEND=noninteractive
 export PATH=$PATH:/snap/bin:/usr/shell-scripts
+export FINAL_USER=vagrant
 
 # CORE PACKAGES INSTALLATION(AND VPN, JUST IN CASE)
 echo "***********************************************"
@@ -24,7 +25,6 @@ echo "***********************************************"
 microk8s.status --wait-ready
 microk8s.enable dashboard
 microk8s.enable dns
-microk8s.enable registry
 microk8s.enable ingress
 microk8s.enable storage
 microk8s.enable helm3
@@ -32,7 +32,6 @@ microk8s.enable metrics-server
 
 # ENV VARS TO DEFINE SOME OF THE BASICS
 export OPENFAAS=$(head -c 12 /dev/urandom | shasum | cut -d " " -f1)
-export FINAL_USER=vagrant
 
 # EXTRACTING IMPORTANT INFO TO THE HOST MACHINE
 microk8s.kubectl config view --raw > /vagrant/.kube-config
