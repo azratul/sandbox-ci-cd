@@ -71,7 +71,6 @@ Vagrant.configure("2") do |config|
       sudo resolvconf -u
       echo "alias ll='ls -lah --color=auto'" >> .bashrc
       echo "alias grep='grep --color=auto'" >> .bashrc
-      echo "alias kubectl='microk8s.kubectl'" >> .bashrc
       sudo systemctl restart bind9
     SHELL
 end

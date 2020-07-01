@@ -34,13 +34,34 @@ echo "***********************************************"
 sed 's/OPTIONS.*bind/& -4/g' /etc/default/bind9
 cp /etc/bind/db.local /etc/bind/forward.${DNS}
 cp /etc/bind/db.127 /etc/bind/reverse.${DNS}
-cp /vagrant/named.conf.local /etc/bind/named.conf.local
-cp /vagrant/named.conf.options /etc/bind/named.conf.options
+cat << 'EOF' > /etc/bind/named.conf.local
+zone "${DNS}" {
+    type master;
+    file "/etc/bind/forward.${DNS}";
+};
+
+zone "168.192.in-addr.arpa" {
+    type master;
+    file "/etc/bind/reverse.${DNS}";
+};
+EOF
+cat << 'EOF' > /etc/bind/named.conf.options
+options {
+    directory "/var/cache/bind";
+    dnssec-validation auto;
+    auth-nxdomain no;    # conform to RFC1035
+    #listen-on-v6 { any; };
+    listen-on port 53 { localhost; 192.168.0.0/16; };
+    allow-query { localhost; 192.168.0.0/16; };
+    forwarders { 8.8.8.8; 1.1.1.1; };
+    recursion yes;
+};
+EOF
 sed -i "s/localhost/dns.${DNS}/g" /etc/bind/forward.${DNS}
-sed -i 's/@\tIN\tA/; &/g' /etc/bind/forward.magi-system.com
+sed -i 's/@\tIN\tA/; &/g' /etc/bind/forward.${DNS}
 sed -i "s/localhost/${DNS}/g" /etc/bind/reverse.${DNS}
 sed -i "s/\tIN\tNS\t/&dns./g" /etc/bind/reverse.${DNS}
-sed -i 's/1\.0\.0\tIN/; &/g' /etc/bind/reverse.magi-system.com
+sed -i 's/1\.0\.0\tIN/; &/g' /etc/bind/reverse.${DNS}
 OCTET1=$(echo ${IP%%.*})
 OCTET2=$(echo ${IP}|cut -d "." -f 2)
 OCTET3=$(echo ${IP}|cut -d "." -f 3)
@@ -66,8 +87,15 @@ echo "***********************************************"
 # Install Portus
 git clone https://github.com/SUSE/Portus.git /tmp/portus
 mv /tmp/portus/examples/compose ${HOME}/portus
-cp /vagrant/extfile.cnf ${HOME}/portus
 cd ${HOME}/portus
+cat << 'EOF' > extfile.cnf
+subjectAltName = URI:${DNS}
+basicConstraints=CA:FALSE
+subjectAltName=@alt_names
+subjectKeyIdentifier = hash
+[ alt_names ]
+DNS.1 = *.${DNS}
+EOF
 sed -i "s/172.17.0.1/docker.${DNS}/g" .env
 sed -i "s/172.17.0.1/docker.${DNS}/g" nginx/nginx.conf
 rm docker-compose.*

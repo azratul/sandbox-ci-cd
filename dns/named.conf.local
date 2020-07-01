@@ -1,9 +1,0 @@
-zone "magi-system.com" {
-    type master;
-    file "/etc/bind/forward.magi-system.com";
-};
-
-zone "168.192.in-addr.arpa" {
-    type master;
-    file "/etc/bind/reverse.magi-system.com";
-};
