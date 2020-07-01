@@ -2,8 +2,8 @@
 
 export GITLAB=121.11
 export DNS_IP=192.168.121.10
-export DOCKER=docker.magi-system.com
 export DNS=magi-system.com
+export DOCKER=docker.$DNS
 export DEBIAN_FRONTEND=noninteractive
 export PATH=$PATH:/snap/bin:/usr/shell-scripts
 export FINAL_USER=vagrant
