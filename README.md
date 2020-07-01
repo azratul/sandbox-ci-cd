@@ -5,15 +5,17 @@ Proyecto para levantar un sandbox de Continuous Integration & Continuous Deliver
 Se recomienda un mínimo de 4 Cores de CPU y 16 GB de RAM.
 
 - DNS:
-> Levantar el registry
+> Levantar el Docker Registry
 
-```cd portus && docker-compose up -d```
+`cd portus && docker-compose up -d`
+
+* Crear admin y usuario de gitlab
 
 
 - Microk8s:
 > Generar el CA Cert y Token que será solicitado en Gitlab
 
-```/vagrant/gitlab.sh```
+`/vagrant/gitlab.sh`
 
 
 - Gitlab
@@ -26,5 +28,6 @@ Se recomienda un mínimo de 4 Cores de CPU y 16 GB de RAM.
 * Ingresar la configuración de microk8s/.gitlab.conf
 * Instalar "Helm"
 * Instalar "Gitlab runner"
+* Agregar las variables $DOCKER_LOGIN y $DOCKER_PASSWORD a los settings de CI/CD, con los datos ingresados al levantar el Docker Registry
 
 Enjoy!
