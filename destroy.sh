@@ -1,8 +1,8 @@
 #!/bin/sh
 
-cd dns && vagrant destroy && cd ..
-cd microk8s && vagrant destroy && cd ..
-cd gitlab && vagrant destroy && cd ..
+cd ${PWD}/dns && vagrant destroy
+cd ${PWD}/microk8s && vagrant destroy
+cd ${PWD}/gitlab && vagrant destroy
 echo "*****************************************"
 echo "*               Destroyed!              *"
 echo "*****************************************"
