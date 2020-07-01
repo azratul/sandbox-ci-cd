@@ -1,4 +1,5 @@
 #!/bin/sh
+mkdir certs
 rm certs/*.crt
 cd dns && vagrant up && mv *.crt ../certs/ && cd ..
 cd microk8s && vagrant up && cd ..
