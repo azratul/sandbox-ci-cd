@@ -34,20 +34,17 @@ echo "***********************************************"
 sed 's/OPTIONS.*bind/& -4/g' /etc/default/bind9
 cp /etc/bind/db.local /etc/bind/forward.${DNS}
 cp /etc/bind/db.127 /etc/bind/reverse.${DNS}
-cat << 'EOF' > /etc/bind/named.conf.local
-zone "${DNS}" {
+echo "zone \"${DNS}\" {
     type master;
-    file "/etc/bind/forward.${DNS}";
+    file \"/etc/bind/forward.${DNS}\";
 };
 
-zone "168.192.in-addr.arpa" {
+zone \"168.192.in-addr.arpa\" {
     type master;
-    file "/etc/bind/reverse.${DNS}";
-};
-EOF
-cat << 'EOF' > /etc/bind/named.conf.options
-options {
-    directory "/var/cache/bind";
+    file \"/etc/bind/reverse.${DNS}\";
+};" > /etc/bind/named.conf.local
+echo "options {
+    directory \"/var/cache/bind\";
     dnssec-validation auto;
     auth-nxdomain no;    # conform to RFC1035
     #listen-on-v6 { any; };
@@ -55,8 +52,7 @@ options {
     allow-query { localhost; 192.168.0.0/16; };
     forwarders { 8.8.8.8; 1.1.1.1; };
     recursion yes;
-};
-EOF
+};" > /etc/bind/named.conf.options
 sed -i "s/localhost/dns.${DNS}/g" /etc/bind/forward.${DNS}
 sed -i 's/@\tIN\tA/; &/g' /etc/bind/forward.${DNS}
 sed -i "s/localhost/${DNS}/g" /etc/bind/reverse.${DNS}
@@ -88,14 +84,12 @@ echo "***********************************************"
 git clone https://github.com/SUSE/Portus.git /tmp/portus
 mv /tmp/portus/examples/compose ${HOME}/portus
 cd ${HOME}/portus
-cat << 'EOF' > extfile.cnf
-subjectAltName = URI:${DNS}
+echo "subjectAltName = URI:${DNS}
 basicConstraints=CA:FALSE
 subjectAltName=@alt_names
 subjectKeyIdentifier = hash
 [ alt_names ]
-DNS.1 = *.${DNS}
-EOF
+DNS.1 = *.${DNS}" > extfile.cnf
 sed -i "s/172.17.0.1/docker.${DNS}/g" .env
 sed -i "s/172.17.0.1/docker.${DNS}/g" nginx/nginx.conf
 rm docker-compose.*

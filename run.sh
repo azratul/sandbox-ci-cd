@@ -1,7 +1,7 @@
 #!/bin/sh
 mkdir certs
-rm certs/*.crt
-cd dns && vagrant up && mv *.crt ../certs/ && cd ..
+rm certs/portus.crt
+cd dns && vagrant up && mv portus.crt ../certs/ && cd ..
 cd microk8s && vagrant up && cd ..
 cd gitlab && vagrant up && cd ..
 echo "*****************************************"
