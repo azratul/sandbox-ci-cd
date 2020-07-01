@@ -74,10 +74,12 @@ rm docker-compose.*
 
 openssl genrsa -out secrets/rootca.key 2048
 dd if=/dev/urandom of=~/.rnd bs=256 count=1
-openssl req -x509 -new -nodes -key secrets/rootca.key -subj "/C=US/ST=CA/O=Acme, Inc."-sha256 -days 1024 -out secrets/rootca.crt
+openssl req -x509 -new -nodes -key secrets/rootca.key -subj "/C=US/ST=CA/O=Acme, Inc." -sha256 -days 1024 -out secrets/rootca.crt
 openssl genrsa -out secrets/portus.key 2048
 openssl req -new -key secrets/portus.key -out secrets/portus.csr -subj "/C=US/ST=CA/O=Acme, Inc./CN=docker.${DNS}"
 openssl x509 -req -in secrets/portus.csr -CA secrets/rootca.crt -extfile extfile.cnf -CAkey secrets/rootca.key -CAcreateserial -out secrets/portus.crt -days 500 -sha256
+# cp secrets/portus.crt secrets/rootca.crt /vagrant/
+cp secrets/portus.crt /vagrant/
 
 # We're getting all the config files into the right place
 cat << 'EOF' > docker-compose.yml
@@ -174,7 +176,7 @@ services:
       REGISTRY_AUTH_TOKEN_REALM: https://${MACHINE_FQDN}/v2/token
       REGISTRY_AUTH_TOKEN_SERVICE: ${MACHINE_FQDN}:5000
       REGISTRY_AUTH_TOKEN_ISSUER: ${MACHINE_FQDN}
-      REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE: /secrets/rootca.crt
+      REGISTRY_AUTH_TOKEN_ROOTCERTBUNDLE: /secrets/portus.crt
 
       # SSL
       REGISTRY_HTTP_TLS_CERTIFICATE: /secrets/portus.crt

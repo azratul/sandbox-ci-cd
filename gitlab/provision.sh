@@ -6,6 +6,8 @@ export DEBIAN_FRONTEND=noninteractive
 
 # CORE PACKAGES INSTALLATION
 apt -y install curl apt-transport-https vim openssh-server ca-certificates resolvconf #postfix
+cp /tmp/*.crt /usr/local/share/ca-certificates/
+update-ca-certificates
 
 # GITLAB INSTALLATION
 printf "search ${DNS}\nnameserver ${DNS_IP}\n" >> /etc/resolvconf/resolv.conf.d/head

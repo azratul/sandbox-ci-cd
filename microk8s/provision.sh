@@ -12,7 +12,9 @@ export FINAL_USER=vagrant
 echo "***********************************************"
 echo "*          INSTALLING CORE PACKAGES           *"
 echo "***********************************************"
-apt -y install snapd git ufw curl apt-transport-https vim openconnect resolvconf
+apt -y install snapd git ufw curl apt-transport-https ca-certificates vim openconnect resolvconf
+cp /tmp/*.crt /usr/local/share/ca-certificates/
+update-ca-certificates
 snap install core
 snap install microk8s --classic
 ufw allow in on cni0
