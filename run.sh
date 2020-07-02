@@ -1,9 +1,9 @@
 .#!/bin/sh
+PWDP=${PWD}
 
-rm certs/portus.crt
-cd ${PWD}/dns && vagrant up && mv portus.crt ../certs/
-cd ${PWD}/microk8s && vagrant up
-cd ${PWD}/gitlab && vagrant up
+cd ${PWDP}/dns && vagrant up && mv portus.crt ../certs/
+cd ${PWDP}/microk8s && vagrant up
+cd ${PWDP}/gitlab && vagrant up
 echo "*****************************************"
 echo "*             Up & Running!             *"
 echo "*****************************************"

@@ -1,8 +1,10 @@
 #!/bin/sh
+PWDP=${PWD}
 
-cd ${PWD}/dns && vagrant destroy
-cd ${PWD}/microk8s && vagrant destroy
-cd ${PWD}/gitlab && vagrant destroy
+cd ${PWDP}/dns && vagrant destroy
+cd ${PWDP}/microk8s && vagrant destroy
+cd ${PWDP}/gitlab && vagrant destroy
+
 echo "*****************************************"
 echo "*               Destroyed!              *"
 echo "*****************************************"
