@@ -1,4 +1,4 @@
-.#!/bin/sh
+#!/bin/sh
 PWDP=${PWD}
 
 cd ${PWDP}/dns && vagrant up && mv portus.crt ../certs/
